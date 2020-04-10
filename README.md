@@ -179,35 +179,32 @@ mysql> select distinct job
 
 3.4 将 MILLER 的 comm 增加 100； 然后，找到 comm 比 MILLER 低的人；
 ```sql
-mysql> select ename from t_dept2 WHERE sal > (
-    -> select sal+100 from t_dept2 WHERE ename='MILLER');
-+--------+
-| ename  |
-+--------+
-| ALLEN  |
-| JONES  |
-| BLAKE  |
-| SCOTT  |
-| KING   |
-| TURNER |
-| FORD   |
-+--------+
-7 rows in set (0.01 sec)
+mysql> update t_dept2
+    -> SET comm=100
+    -> WHERE ename = 'MILLER';
+Query OK, 0 rows affected (0.00 sec)
+Rows matched: 1  Changed: 0  Warnings: 0
 
-mysql> select * from t_dept2 WHERE sal > (
-    -> select sal+100 from t_dept2 WHERE ename='MILLER');
-+-------+--------+-----------+------+------------+------+------+--------+
-| empno | ename  | job       | MGR  | Hiredate   | sal  | comm | deptno |
-+-------+--------+-----------+------+------------+------+------+--------+
-|  7499 | ALLEN  | SALESMAN  | 7698 | 1982-03-12 | 1600 |  300 |     30 |
-|  7566 | JONES  | MANAGER   | 7839 | 1981-03-12 | 2975 | NULL |     20 |
-|  7698 | BLAKE  | MANAGER   | 7839 | 1985-03-12 | 2450 | NULL |     10 |
-|  7788 | SCOTT  | ANALYST   | 7566 | 1981-03-12 | 3000 | NULL |     20 |
-|  7839 | KING   | PRESIDENT | NULL | 1981-03-12 | 5000 | NULL |     10 |
-|  7844 | TURNER | SALESMAN  | 7689 | 1981-03-12 | 1500 |    0 |     30 |
-|  7902 | FORD   | ANALYST   | 7566 | 1981-03-12 | 3000 | NULL |     20 |
-+-------+--------+-----------+------+------------+------+------+--------+
-7 rows in set (0.00 sec)
+mysql> select * from t_dept2;
++----------+--------+-----------+------+------------+--------+------+--------+
+| empno    | ename  | job       | MGR  | Hiredate   | salary | comm | deptno |
++----------+--------+-----------+------+------------+--------+------+--------+
+|     7369 | SMITH  | CLERK     | 7902 | 1981-03-12 |    800 | NULL |     20 |
+|     7499 | ALLEN  | SALESMAN  | 7698 | 1982-03-12 |   1600 |  300 |     30 |
+|     7521 | WARD   | SALESMAN  | 7698 | 1838-03-12 |   1250 |  500 |     30 |
+|     7566 | JONES  | MANAGER   | 7839 | 1981-03-12 |   2975 | NULL |     20 |
+|     7654 | MARTIN | SALESMAN  | 7698 | 1981-01-12 |   1250 | 1400 |     30 |
+|     7698 | BLAKE  | MANAGER   | 7839 | 1985-03-12 |   2450 | NULL |     10 |
+|     7788 | SCOTT  | ANALYST   | 7566 | 1981-03-12 |   3000 | NULL |     20 |
+|     7839 | KING   | PRESIDENT | NULL | 1981-03-12 |   5000 | NULL |     10 |
+|     7844 | TURNER | SALESMAN  | 7689 | 1981-03-12 |   1500 |    0 |     30 |
+|     7878 | ADAMS  | CLERK     | 7788 | 1981-03-12 |   1100 | NULL |     20 |
+|     7900 | JAMES  | CLERK     | 7698 | 1981-03-12 |    950 | NULL |     30 |
+|     7902 | FORD   | ANALYST   | 7566 | 1981-03-12 |   3000 | NULL |     20 |
+|     7934 | MILLER | CLERK     | 7782 | 1981-03-12 |   1300 |  100 |     10 |
+| 17061527 | xuxin  | STUDENT   | 7782 | 1998-12-28 |   NULL | NULL |     10 |
++----------+--------+-----------+------+------------+--------+------+--------+
+14 rows in set (0.00 sec)
 ```
 3.5 计算每个人的收入(ename, sal + comm)；计算总共有多少人；计算所有人的平均收入。 提示：计算时 NULL 要当做 0 处理； 
 ```sql
@@ -218,6 +215,7 @@ mysql> select ename,sal+comm,count(ename) counts,AVG(sal+comm) average_sal_comm 
 | SMITH |     NULL |     14 |             1950 |
 +-------+----------+--------+------------------+
 1 row in set (0.01 sec)
+```
 
 3.6 显示每个人的下属, 没有下属的显示 NULL。本操作使用关系代数中哪几种运算？
 ```sql
@@ -374,13 +372,20 @@ mysql> flush privileges;
 Query OK, 0 rows affected (0.02 sec)
 ```
 4.1 将表1的SELECT, INSERT, UPDATE(ename)权限赋给该账号。
+```sql
+mysql> grant select,insert,update on f_test .* to xuxin@localhost identified by '17061527';
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+```
 
 4.2 显示该账号权限
-
+```sql
+show grants for xuxin;
+```
 4.3 `with grant option` 是什么意思。
 
 5 表 1 和表 2 这样设计是否符合第一范式，是否符合第二范式，为什么？
-
+表一符合第一范式和第二范式。因为第一个表的关系中的每个属性都不可再分，满足第一范式；只要表中的一个属性确定,其他的属性也随之确定，满足第二范式。
+表二符合第一范式，但不符合第二范式。因为第一个表的关系中的每个属性都不可再分，满足第一范式；表中MGR属性确定但不能确定其他的属性，所以不满足第二范式。
 6 画出表 1 和表 2 所对应的 E-R 图
 
 7 什么是外模式，什么是内模式。为什么要分成这几层？
