@@ -221,14 +221,73 @@ from t_dept2;
 3.8 为表2增加一个约束：deptno字段需要在表1中存在；这称做什么完整性？
 
 3.9 为表2增加一个索引：ename 字段。简述为什么要在 ename 字段建立索引
+```sql
+mysql> CREATE INDEX index_ename
+    -> ON t_dept2 (ename);
+Query OK, 0 rows affected (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
 
+mysql> SHOW CREATE TABLE t_dept2 \G
+*************************** 1. row ***************************
+       Table: t_dept2
+Create Table: CREATE TABLE `t_dept2` (
+  `empno` int(11) NOT NULL,
+  `ename` varchar(20) DEFAULT NULL,
+  `job` varchar(20) DEFAULT NULL,
+  `MGR` int(11) DEFAULT NULL,
+  `Hiredate` date DEFAULT NULL,
+  `salary` float DEFAULT NULL,
+  `comm` float DEFAULT NULL,
+  `deptno` int(11) DEFAULT NULL,
+  PRIMARY KEY (`empno`),
+  KEY `index_ename` (`ename`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+1 row in set (0.00 sec)
+```
 3.10 将表2的 sal 字段改名为 salary
 ```sql
-alter table t_dept2
-	CHANGE sal salary float;
+mysql> alter table t_dept2
+    -> CHANGE sal salary float;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc t_dept2;
++----------+-------------+------+-----+---------+-------+
+| Field    | Type        | Null | Key | Default | Extra |
++----------+-------------+------+-----+---------+-------+
+| empno    | int(11)     | NO   | PRI | NULL    |       |
+| ename    | varchar(20) | YES  |     | NULL    |       |
+| job      | varchar(20) | YES  |     | NULL    |       |
+| MGR      | int(11)     | YES  |     | NULL    |       |
+| Hiredate | date        | YES  |     | NULL    |       |
+| salary   | float       | YES  |     | NULL    |       |
+| comm     | float       | YES  |     | NULL    |       |
+| deptno   | int(11)     | YES  |     | NULL    |       |
++----------+-------------+------+-----+---------+-------+
+8 rows in set (0.01 sec)
 ```
 3.11 撰写一个函数 get_deptno_from_empno，输入 empno，输出对应的 deptno。 简述函数和存储过程有什么不同。
+```sql
+mysql>     DELIMITER $$
+mysql>     CREATE FUNCTION func_1 (empno INT)
+    ->         RETURNS DOUBLE
+    ->     BEGIN
+    ->         RETURN (SELECT deptno
+    ->             FROM t_dept2
+    ->             WHERE t_dept2.empno = empno);
+    ->     END$$
+Query OK, 0 rows affected (0.02 sec)
 
+mysql>     DELIMITER ;
+mysql>   SELECT func_1(7499);
++--------------+
+| func_1(7499) |
++--------------+
+|           30 |
++--------------+
+1 row in set (0.00 sec)
+```
+不同：函数是用在表达式中，在一个存储过程中可能用到多个的函数 
 4 建立一个新用户，账号为自己的姓名拼音，密码为自己的学号；
 
 4.1 将表1的SELECT, INSERT, UPDATE(ename)权限赋给该账号。
