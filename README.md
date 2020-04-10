@@ -179,8 +179,8 @@ mysql> select distinct job
 
 3.4 将 MILLER 的 comm 增加 100； 然后，找到 comm 比 MILLER 低的人；
 ```sql
-mysql> select ename from test2 WHERE sal > (
-    -> select sal+100 from test2 WHERE ename='MILLER');
+mysql> select ename from t_dept2 WHERE sal > (
+    -> select sal+100 from t_dept2 WHERE ename='MILLER');
 +--------+
 | ename  |
 +--------+
@@ -194,8 +194,8 @@ mysql> select ename from test2 WHERE sal > (
 +--------+
 7 rows in set (0.01 sec)
 
-mysql> select * from test2 WHERE sal > (
-    -> select sal+100 from test2 WHERE ename='MILLER');
+mysql> select * from t_dept2 WHERE sal > (
+    -> select sal+100 from t_dept2 WHERE ename='MILLER');
 +-------+--------+-----------+------+------------+------+------+--------+
 | empno | ename  | job       | MGR  | Hiredate   | sal  | comm | deptno |
 +-------+--------+-----------+------+------------+------+------+--------+
@@ -211,10 +211,34 @@ mysql> select * from test2 WHERE sal > (
 ```
 3.5 计算每个人的收入(ename, sal + comm)；计算总共有多少人；计算所有人的平均收入。 提示：计算时 NULL 要当做 0 处理； 
 ```sql
-select ename,sal+comm
-from t_dept2;
-```
+mysql> select ename,sal+comm,count(ename) counts,AVG(sal+comm) average_sal_comm from t_dept2;
++-------+----------+--------+------------------+
+| ename | sal+comm | counts | average_sal_comm |
++-------+----------+--------+------------------+
+| SMITH |     NULL |     14 |             1950 |
++-------+----------+--------+------------------+
+1 row in set (0.01 sec)
+
 3.6 显示每个人的下属, 没有下属的显示 NULL。本操作使用关系代数中哪几种运算？
+```sql
+mysql> select t1.ename My_b_b_name,t2.ename My_b_name ,t3.ename My_name
+    -> from (t_dept2 t1 inner join t_dept2 t2 on t1. empno= t2. mgr)  inner join t_dept2 t3
+    -> on t2.empno = t3.mgr;
++-------------+-----------+---------+
+| My_b_b_name | My_b_name | My_name |
++-------------+-----------+---------+
+| JONES       | FORD      | SMITH   |
+| KING        | BLAKE     | ALLEN   |
+| KING        | BLAKE     | WARD    |
+| KING        | BLAKE     | MARTIN  |
+| KING        | JONES     | SCOTT   |
+| JONES       | SCOTT     | ADAMS   |
+| KING        | BLAKE     | JAMES   |
+| KING        | JONES     | FORD    |
++-------------+-----------+---------+
+8 rows in set (0.01 sec)
+```
+关系代数：交
 
 3.7 建立一个视图：每个人的empno, ename, job 和 loc。简述为什么要建立本视图。
 
@@ -289,7 +313,18 @@ mysql>   SELECT func_1(7499);
 ```
 不同：函数是用在表达式中，在一个存储过程中可能用到多个的函数 
 4 建立一个新用户，账号为自己的姓名拼音，密码为自己的学号；
+```sql
+mysql> insert into mysql.user(Host,User,Password) values("localhost","xuxin",password("17061527"));
+ERROR 1054 (42S22): Unknown column 'Password' in 'field list'
+mysql> GRANT USAGE ON *.* TO 'xuxin'@'localhost' IDENTIFIED BY '17061527' WITH GRANT OPTION;
+Query OK, 0 rows affected, 1 warning (0.01 sec)
 
+mysql> SET PASSWORD FOR xuxin@'localhost' = PASSWORD('17061527');
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.02 sec)
+```
 4.1 将表1的SELECT, INSERT, UPDATE(ename)权限赋给该账号。
 
 4.2 显示该账号权限
