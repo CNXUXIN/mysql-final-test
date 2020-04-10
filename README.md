@@ -317,6 +317,7 @@ Create Table: CREATE TABLE `t_dept2` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
 1 row in set (0.00 sec)
 ```
+方便根据名字查询表内内容
 3.10 将表2的 sal 字段改名为 salary
 ```sql
 mysql> alter table t_dept2
@@ -363,8 +364,6 @@ mysql>   SELECT func_1(7499);
 不同：函数是用在表达式中，在一个存储过程中可能用到多个的函数 
 4 建立一个新用户，账号为自己的姓名拼音，密码为自己的学号；
 ```sql
-mysql> insert into mysql.user(Host,User,Password) values("localhost","xuxin",password("17061527"));
-ERROR 1054 (42S22): Unknown column 'Password' in 'field list'
 mysql> GRANT USAGE ON *.* TO 'xuxin'@'localhost' IDENTIFIED BY '17061527' WITH GRANT OPTION;
 Query OK, 0 rows affected, 1 warning (0.01 sec)
 
